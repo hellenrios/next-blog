@@ -1,10 +1,6 @@
-import React, { useState } from "react";
-import { useRouter } from "next/router";
+import React from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import Layout from "../components/Layout";
-import { useAuth } from "../context/authContext";
-import Modal from "../components/Modal";
 
 interface Post {
   id: number;
@@ -13,44 +9,30 @@ interface Post {
   author: string;
 }
 
-const PostPage: React.FC = () => {
-  const router = useRouter();
-  const { currentUser, setPosts } = useAuth();
-  const [postToDelete, setPostToDelete] = useState<Post | null>(null);
+interface EditPostModalProps {
+  post: Post;
+  onClose: () => void;
+  onSave: (values: { title: string; content: string }) => void;
+}
 
-  const handleCreateOrUpdatePost = (values: {
-    title: string;
-    content: string;
-  }) => {
-    const newPost = {
-      id: Date.now(),
-      ...values,
-      author: currentUser?.name || "Unknown",
-    };
-    setPosts((prevPosts) => [...prevPosts, newPost]);
-    router.push("/");
-  };
-
-  const handleDeletePost = (postId: number) => {
-    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
-    setPostToDelete(null);
-  };
-
+const EditPostModal: React.FC<EditPostModalProps> = ({
+  post,
+  onClose,
+  onSave,
+}) => {
   return (
-    <Layout>
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Criar Postagem</h1>
+    <div className="fixed inset-0 flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <h2 className="text-2xl font-bold mb-4">Editar Postagem</h2>
         <Formik
-          initialValues={{
-            title: "",
-            content: "",
-          }}
+          initialValues={{ title: post.title, content: post.content }}
           validationSchema={Yup.object({
             title: Yup.string().required("Cabeçalho é obrigatório"),
             content: Yup.string().required("Conteúdo é obrigatório"),
           })}
-          onSubmit={(values) => {
-            handleCreateOrUpdatePost(values);
+          onSubmit={(values, { setSubmitting }) => {
+            onSave(values);
+            setSubmitting(false);
           }}
         >
           {({ isSubmitting }) => (
@@ -94,29 +76,28 @@ const PostPage: React.FC = () => {
                   className="text-red-500 text-sm mt-2"
                 />
               </div>
-              <div className="mb-4">
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="mr-4 px-4 py-2 border border-transparent rounded-full text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+                >
+                  Cancelar
+                </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-2 px-4 border border-transparent rounded-full text-sm font-medium text-white bg-black hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  className="px-4 py-2 border border-transparent rounded-full text-sm font-medium text-white bg-black hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                 >
-                  {isSubmitting ? "Salvando..." : "Criar"}
+                  {isSubmitting ? "Salvando..." : "Salvar"}
                 </button>
               </div>
             </Form>
           )}
         </Formik>
-        {postToDelete && (
-          <Modal
-            title="Confirmar Exclusão"
-            message={`Você tem certeza que deseja excluir a postagem "${postToDelete.title}"?`}
-            onConfirm={() => handleDeletePost(postToDelete.id)}
-            onCancel={() => setPostToDelete(null)}
-          />
-        )}
       </div>
-    </Layout>
+    </div>
   );
 };
 
-export default PostPage;
+export default EditPostModal;

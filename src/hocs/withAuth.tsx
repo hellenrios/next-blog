@@ -1,4 +1,3 @@
-// src/hocs/withAuth.tsx
 import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/authContext";
@@ -15,7 +14,7 @@ const withAuth = (WrappedComponent: React.FC) => {
     }, [isAuthenticated, router]);
 
     if (!isAuthenticated) {
-      return null; // ou um spinner de carregamento, etc.
+      return null;
     }
 
     return <WrappedComponent {...props} />;

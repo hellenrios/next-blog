@@ -1,4 +1,3 @@
-// src/pages/register.tsx
 import React from "react";
 import { useAuth } from "../context/authContext";
 import { Formik, Field, Form, ErrorMessage } from "formik";
@@ -6,12 +5,7 @@ import * as Yup from "yup";
 import AuthHeader from "../components/AuthHeader";
 
 const Register: React.FC = () => {
-  const { login } = useAuth();
-
-  const handleRegister = () => {
-    // Simulação de registro e login automático
-    login();
-  };
+  const { register } = useAuth();
 
   return (
     <div className="bg-[#F7F4ED] min-h-screen flex flex-col">
@@ -23,7 +17,9 @@ const Register: React.FC = () => {
             initialValues={{ name: "", login: "", password: "" }}
             validationSchema={Yup.object({
               name: Yup.string().required("Nome é obrigatório"),
-              login: Yup.string().required("Login é obrigatório"),
+              login: Yup.string()
+                .email("Email inválido")
+                .required("Email é obrigatório"),
               password: Yup.string()
                 .required("Senha é obrigatória")
                 .matches(
@@ -31,8 +27,9 @@ const Register: React.FC = () => {
                   "A senha deve conter pelo menos 8 caracteres, uma letra maiúscula, um número e um caractere especial"
                 ),
             })}
-            onSubmit={(values) => {
-              handleRegister();
+            onSubmit={(values, { setSubmitting }) => {
+              register(values.name, values.login, values.password);
+              setSubmitting(false);
             }}
           >
             {({ isSubmitting }) => (
@@ -62,10 +59,10 @@ const Register: React.FC = () => {
                     htmlFor="login"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Login
+                    Email
                   </label>
                   <Field
-                    type="text"
+                    type="email"
                     name="login"
                     id="login"
                     className="block w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
