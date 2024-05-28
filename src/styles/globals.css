@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@400;700&display=swap');
+@import 'nprogress/nprogress.css';
+
+body {
+    font-family: sohne, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+
+.font-playfair {
+  font-family: 'Playfair Display', serif;
+}
