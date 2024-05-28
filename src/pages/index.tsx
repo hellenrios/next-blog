@@ -1,9 +1,8 @@
-// src/pages/index.tsx
-import React, { useState, useEffect } from "react";
-import withAuth from "../hocs/withAuth";
+import React, { useState } from "react";
+import { useRouter } from "next/router";
 import Layout from "../components/Layout";
 import Modal from "../components/Modal";
-import api from "../services/api";
+import EditPostModal from "../components/EditPostModal";
 import { useAuth } from "../context/authContext";
 
 interface Post {
@@ -14,35 +13,25 @@ interface Post {
 }
 
 const Home: React.FC = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const { posts, isAuthenticated, setPosts } = useAuth();
+  const [postToEdit, setPostToEdit] = useState<Post | null>(null);
   const [postToDelete, setPostToDelete] = useState<Post | null>(null);
-  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await api.get("/posts/list");
-        setPosts(response.data);
-      } catch (error) {
-        console.error("Erro ao buscar postagens:", error);
-      }
-    };
-
-    fetchPosts();
-  }, []);
-
-  const handleDeletePost = async (postId: number) => {
-    try {
-      await api.delete(`/posts/delete/${postId}`);
-      setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
-      setPostToDelete(null);
-    } catch (error) {
-      console.error("Erro ao excluir a postagem:", error);
-    }
+  const handleDeletePost = (postId: number) => {
+    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+    setPostToDelete(null);
   };
 
-  const handleEditPost = (post: Post) => {
-    // Implementar lógica de edição de postagem
+  const handleSaveEditPost = (values: { title: string; content: string }) => {
+    if (postToEdit) {
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postToEdit.id ? { ...post, ...values } : post
+        )
+      );
+      setPostToEdit(null);
+    }
   };
 
   return (
@@ -55,17 +44,17 @@ const Home: React.FC = () => {
               <h3 className="text-lg font-bold">{post.title}</h3>
               <p>{post.content}</p>
               <p className="text-sm text-gray-500">Autor: {post.author}</p>
-              {isAuthenticated && post.author === "current-user" && (
+              {isAuthenticated && (
                 <div className="mt-2 flex space-x-2">
                   <button
-                    onClick={() => handleEditPost(post)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    onClick={() => setPostToEdit(post)}
+                    className="bg-black text-white px-4 py-2 rounded-full hover:bg-green-600"
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => setPostToDelete(post)}
-                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                    className="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-500 hover:bg-red-600"
                   >
                     Excluir
                   </button>
@@ -82,9 +71,16 @@ const Home: React.FC = () => {
             onCancel={() => setPostToDelete(null)}
           />
         )}
+        {postToEdit && (
+          <EditPostModal
+            post={postToEdit}
+            onClose={() => setPostToEdit(null)}
+            onSave={handleSaveEditPost}
+          />
+        )}
       </div>
     </Layout>
   );
 };
 
-export default withAuth(Home);
+export default Home;

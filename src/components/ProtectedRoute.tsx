@@ -1,4 +1,3 @@
-// src/components/ProtectedRoute.tsx
 import { useRouter } from "next/router";
 import { useEffect, ReactNode } from "react";
 

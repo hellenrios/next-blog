@@ -1,4 +1,3 @@
-// src/pages/login.tsx
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/authContext";
@@ -16,10 +15,6 @@ const Login: React.FC = () => {
     }
   }, [isAuthenticated, router]);
 
-  const handleLogin = () => {
-    login();
-  };
-
   return (
     <div className="bg-[#F7F4ED] min-h-screen flex flex-col">
       <AuthHeader />
@@ -27,34 +22,35 @@ const Login: React.FC = () => {
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow m-5">
           <h1 className="text-2xl text-center font-bold mb-8">Login</h1>
           <Formik
-            initialValues={{ email: "", password: "" }}
+            initialValues={{ login: "", password: "" }}
             validationSchema={Yup.object({
-              email: Yup.string()
+              login: Yup.string()
                 .email("Endereço de e-mail inválido")
                 .required("Campo obrigatório"),
               password: Yup.string().required("Campo obrigatório"),
             })}
-            onSubmit={(values) => {
-              handleLogin();
+            onSubmit={(values, { setSubmitting }) => {
+              login(values.login, values.password);
+              setSubmitting(false);
             }}
           >
             {({ isSubmitting }) => (
               <Form>
                 <div className="mb-6">
                   <label
-                    htmlFor="email"
+                    htmlFor="login"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
                     E-mail
                   </label>
                   <Field
                     type="email"
-                    name="email"
-                    id="email"
+                    name="login"
+                    id="login"
                     className="block w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <ErrorMessage
-                    name="email"
+                    name="login"
                     component="div"
                     className="text-red-600 text-sm mt-2"
                   />

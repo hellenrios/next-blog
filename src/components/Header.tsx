@@ -1,4 +1,3 @@
-// src/components/Header.tsx
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -30,7 +29,7 @@ const Header: React.FC = () => {
         <div className="container mx-auto flex justify-between items-center p-4">
           <Link href="/" legacyBehavior>
             <a className="flex items-center">
-              <span className="text-3xl font-bold font-playfair">MIT Blog</span>
+              <span className="text-3xl font-bold font-playfair">Mit Blog</span>
             </a>
           </Link>
           <div className="hidden md:flex flex-1 items-center ml-4">
